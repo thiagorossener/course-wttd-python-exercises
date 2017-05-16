@@ -43,6 +43,7 @@ columns, so the output looks better.
 
 import random
 import sys
+import textwrap
 
 
 def mimic_dict(filename):
@@ -51,35 +52,51 @@ def mimic_dict(filename):
     words = file.read().replace('\n', ' ').split(' ')
     file.close()
 
-    def find_occurrences(searched_word, words):
-        l = []
-        idx = 0
-        while idx < len(words):
-            if searched_word == words[idx]:
-                if idx == len(words)-1:
-                    l.append('')
-                else:
-                    l.append(words[idx+1])
-            idx += 1
-        return l
-
     d = {'': [words[0]]}
     for word in words:
         if not d.get(word):
-            d[word] = find_occurrences(word, words)
+            d[word] = [w for i, w in enumerate(words) if i != 0 and word == words[i-1]]
     return d
+
+    # Old solution
+    # def find_occurrences(searched_word, words):
+    #     l = []
+    #     idx = 0
+    #     while idx < len(words):
+    #         if searched_word == words[idx]:
+    #             if idx == len(words)-1:
+    #                 l.append('')
+    #             else:
+    #                 l.append(words[idx+1])
+    #         idx += 1
+    #     return l
+    #
+    # d = {'': [words[0]]}
+    # for word in words:
+    #     if not d.get(word):
+    #         d[word] = find_occurrences(word, words)
+    # return d
 
 
 def print_mimic(mimic_dict, word):
     """Given mimic dict and start word, prints 200 random words."""
-    text = ''
+    words = []
     for i in range(1, 200):
-        chosen_word = random.choice(mimic_dict[word])
-        text += chosen_word + ' '
-        if i % 40 == 0:
-            text += '\n'
-        word = chosen_word
-    print(text)
+        next_word = random.choice(mimic_dict[word])
+        words.append(next_word)
+        word = next_word
+    one_line_text = ' '.join(words)
+    print('\n'.join(textwrap.wrap(one_line_text, 40)))
+
+    # Old solution
+    # text = ''
+    # for i in range(1, 200):
+    #     chosen_word = random.choice(mimic_dict[word])
+    #     text += chosen_word + ' '
+    #     if i % 40 == 0:
+    #         text += '\n'
+    #     word = chosen_word
+    # print(text)
 
 # Provided main(), calls mimic_dict() and mimic()
 def main():
