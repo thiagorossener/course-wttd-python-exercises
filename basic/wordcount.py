@@ -40,12 +40,45 @@ print_words() and print_top().
 import sys
 
 
+def generate_words_dict(filename):
+    f = open(filename, 'r')
+    words = [word.lower() for word in f.read().split()]
+    f.close()
+
+    d = {}
+    for word in words:
+        if not d.get(word):
+            d[word] = 0
+        d[word] += 1
+    return d
+
+
+def sort_by_word(tuples):
+    def first(tuple):
+        return tuple[0]
+    return sorted(tuples, key=first)
+
+
+def sort_by_total(tuples):
+    def first(tuple):
+        return tuple[-1]
+    return sorted(tuples, key=first, reverse=True)
+
+
 def print_words(filename):
-    pass
+    d = generate_words_dict(filename)
+    ordered_tuple = sort_by_word(tuple(d.items()))
+    for word, total in ordered_tuple:
+        print(word, total)
+
 
 def print_top(filename):
-    pass
-
+    d = generate_words_dict(filename)
+    ordered_tuple = sort_by_total(tuple(d.items()))
+    for idx, (word, total) in enumerate(ordered_tuple):
+        if idx == 20:
+            break
+        print(word, total)
 
 # Define print_words(filename) and print_top(filename) functions.
 # You could write a helper utility function that reads a file
@@ -56,6 +89,8 @@ def print_top(filename):
 
 # This basic command line argument parsing code is provided and
 # calls the print_words() and print_top() functions which you must define.
+
+
 def main():
     if len(sys.argv) != 3:
         print('usage: ./wordcount.py {--count | --topcount} file')
