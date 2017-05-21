@@ -8,6 +8,7 @@
 
 import sys
 import re
+import os
 
 """Baby Names exercise
 
@@ -41,8 +42,18 @@ def extract_names(filename):
     followed by the name-rank strings in alphabetical order.
     ['2006', 'Aaliyah 91', Aaron 57', 'Abagail 895', ' ...]
     """
-    # +++your code here+++
-    return
+    f = open(filename, 'r')
+    html = f.read()
+    f.close()
+
+    year = re.search('<h3 align="center">Popularity in (.*)</h3>', html, re.IGNORECASE).group(1)
+    names, rows = [], re.findall('<tr align="right"><td>(.*)</td><td>(.*)</td><td>(.*)</td>', html, re.IGNORECASE)
+    for rank, male_name, female_name in rows:
+        names.append(' '.join([male_name, rank]))
+        names.append(' '.join([female_name, rank]))
+    final_list = [year] + sorted(names)
+
+    return final_list
 
 
 def main():
@@ -56,14 +67,25 @@ def main():
         sys.exit(1)
 
     # Notice the summary flag and remove it from args if it is present.
+    summaryfile_name = 'summaryfile.txt'
     summary = False
     if args[0] == '--summaryfile':
         summary = True
         del args[0]
+        # Remove summary file if it exists
+        if os.path.isfile(summaryfile_name):
+            os.remove(summaryfile_name)
 
-        # +++your code here+++
-        # For each filename, get the names, then either print the text output
-        # or write it to a summary file
+    # For each filename, get the names, then either print the text output
+    # or write it to a summary file
+    for filename in args:
+        if not summary:
+            print(extract_names(filename))
+            print('\n')
+        else:
+            f = open(summaryfile_name, 'a')
+            f.write(', '.join(extract_names(filename)) + '\n\n')
+            f.close()
 
 
 if __name__ == '__main__':
